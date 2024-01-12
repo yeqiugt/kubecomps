@@ -38,6 +38,7 @@ type Rollback struct {
 	Version       int
 	Timeout       time.Duration
 	Wait          bool
+	WaitForJobs   bool
 	DisableHooks  bool
 	DryRun        bool
 	Recreate      bool // will (if true) recreate pods after a rollback.
@@ -163,6 +164,11 @@ func (r *Rollback) performRollback(currentRelease, targetRelease *release.Releas
 		r.cfg.Log("rollback hooks disabled for %s", targetRelease.Name)
 	}
 
+	// It is safe to use "force" here because these are resources currently rendered by the chart.
+	err = target.Visit(setMetadataVisitor(targetRelease.Name, targetRelease.Namespace, true))
+	if err != nil {
+		return targetRelease, errors.Wrap(err, "unable to set metadata visitor from target release")
+	}
 	results, err := r.cfg.KubeClient.Update(current, target, r.Force)
 
 	if err != nil {
@@ -199,11 +205,20 @@ func (r *Rollback) performRollback(currentRelease, targetRelease *release.Releas
 	}
 
 	if r.Wait {
-		if err := r.cfg.KubeClient.Wait(target, r.Timeout); err != nil {
-			targetRelease.SetStatus(release.StatusFailed, fmt.Sprintf("Release %q failed: %s", targetRelease.Name, err.Error()))
-			r.cfg.recordRelease(currentRelease)
-			r.cfg.recordRelease(targetRelease)
-			return targetRelease, errors.Wrapf(err, "release %s failed", targetRelease.Name)
+		if r.WaitForJobs {
+			if err := r.cfg.KubeClient.WaitWithJobs(target, r.Timeout); err != nil {
+				targetRelease.SetStatus(release.StatusFailed, fmt.Sprintf("Release %q failed: %s", targetRelease.Name, err.Error()))
+				r.cfg.recordRelease(currentRelease)
+				r.cfg.recordRelease(targetRelease)
+				return targetRelease, errors.Wrapf(err, "release %s failed", targetRelease.Name)
+			}
+		} else {
+			if err := r.cfg.KubeClient.Wait(target, r.Timeout); err != nil {
+				targetRelease.SetStatus(release.StatusFailed, fmt.Sprintf("Release %q failed: %s", targetRelease.Name, err.Error()))
+				r.cfg.recordRelease(currentRelease)
+				r.cfg.recordRelease(targetRelease)
+				return targetRelease, errors.Wrapf(err, "release %s failed", targetRelease.Name)
+			}
 		}
 	}
 

@@ -73,7 +73,7 @@ func (m *SClusterRoleManager) SyncResources(ctx context.Context, userCred mcclie
 
 func (m *SClusterRoleManager) ValidateClusterRoleObject(obj *rbacv1.ClusterRole) error {
 	return ValidateCreateK8sObject(obj, new(rbac.ClusterRole), func(out interface{}) field.ErrorList {
-		return validation.ValidateClusterRole(out.(*rbac.ClusterRole))
+		return validation.ValidateClusterRole(out.(*rbac.ClusterRole), validation.ClusterRoleValidationOptions{})
 	})
 }
 
@@ -100,7 +100,7 @@ func (m *SClusterRoleManager) NewRemoteObjectForCreate(_ IClusterModel, _ *clien
 
 func ValidateUpdateClusterRoleObject(oldObj, newObj *rbacv1.ClusterRole) error {
 	if err := ValidateUpdateK8sObject(oldObj, newObj, new(rbac.ClusterRole), new(rbac.ClusterRole), func(newObj, oldObj interface{}) field.ErrorList {
-		return validation.ValidateClusterRoleUpdate(oldObj.(*rbac.ClusterRole), newObj.(*rbac.ClusterRole))
+		return validation.ValidateClusterRoleUpdate(oldObj.(*rbac.ClusterRole), newObj.(*rbac.ClusterRole), validation.ClusterRoleValidationOptions{})
 	}); err != nil {
 		return errors.Wrap(err, "ValidateUpdateClusterRoleObject")
 	}

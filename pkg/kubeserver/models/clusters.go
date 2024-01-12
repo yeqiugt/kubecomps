@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"path/filepath"
 	"strings"
@@ -279,11 +280,16 @@ func (m *SClusterManager) GetSystemCluster() (*SCluster, error) {
 }
 
 func (m *SClusterManager) GetSystemClusterConfig() (*rest.Config, error) {
-	cfg, err := rest.InClusterConfig()
+	//cfg, err := rest.InClusterConfig()
+	//if err != nil {
+	//	return nil, err
+	//}
+	kubeconfig := "/root/.kube/config"
+	config, err := clientcmd.BuildConfigFromFlags("", kubeconfig)
 	if err != nil {
-		return nil, err
+		panic("Error loading kubeconfig")
 	}
-	return cfg, nil
+	return config, nil
 }
 
 const (
@@ -301,13 +307,20 @@ func (m *SClusterManager) GetSystemClusterK8SInfo() (*k8sInfo, error) {
 	if err != nil {
 		return nil, errors.Wrap(err, "get rest config")
 	}
-	kubeconfig, err := m.GetSystemClusterKubeconfig(restCfg.Host, restCfg)
+	//kubeconfig, err := m.GetSystemClusterKubeconfig(restCfg.Host, restCfg)
+	//if err != nil {
+	//	return nil, errors.Wrap(err, "generate k8s kubeconfig")
+	//}
+	kubeconfigBytes, err := ioutil.ReadFile("/root/.kube/config")
 	if err != nil {
-		return nil, errors.Wrap(err, "generate k8s kubeconfig")
+		fmt.Println("Error reading kubeconfig file:", err)
+		panic(err)
 	}
+	kubeconfigString := string(kubeconfigBytes)
+
 	return &k8sInfo{
 		ApiServer:  restCfg.Host,
-		Kubeconfig: kubeconfig,
+		Kubeconfig: kubeconfigString,
 	}, nil
 }
 
@@ -386,6 +399,7 @@ func (m *SClusterManager) RegisterSystemCluster() error {
 		if err != nil {
 			return errors.Wrap(err, "get system cluster")
 		}
+		log.Warningf("system cluster status %s", sysCluster.GetStatus())
 		if sysCluster.GetStatus() != api.ClusterStatusRunning {
 			log.Warningf("system cluster status %s != running", sysCluster.GetStatus())
 			time.Sleep(5 * time.Second)

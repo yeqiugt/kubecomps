@@ -52,7 +52,7 @@ type IRelease interface {
 }
 
 type IChart interface {
-	List() *action.ChartList
+	List() *action.List
 	Show() error
 }
 

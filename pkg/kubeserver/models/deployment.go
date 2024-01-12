@@ -2,6 +2,7 @@ package models
 
 import (
 	"context"
+	apivalidation "k8s.io/kubernetes/pkg/apis/core/validation"
 
 	apps "k8s.io/api/apps/v1"
 	v1 "k8s.io/api/core/v1"
@@ -62,7 +63,7 @@ type SDeployment struct {
 
 func (m *SDeploymentManager) ValidateDeploymentObject(deploy *apps.Deployment) error {
 	return ValidateCreateK8sObject(deploy, new(iapps.Deployment), func(out interface{}) field.ErrorList {
-		return validation.ValidateDeployment(out.(*iapps.Deployment))
+		return validation.ValidateDeployment(out.(*iapps.Deployment), apivalidation.PodValidationOptions{})
 	})
 }
 

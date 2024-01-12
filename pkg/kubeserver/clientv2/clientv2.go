@@ -215,7 +215,8 @@ func (c *K8sClient) VerifyCreate(obj runtime.Object) error {
 	if err != nil {
 		return errors.Wrap(err, "RESTMapping")
 	}
-	verifier := resource.NewDryRunVerifier(dynamicClient, discoveryClient)
+	// verifier := resource.NewDryRunVerifier(dynamicClient, discoveryClient)
+	verifier := resource.NewQueryParamVerifier(dynamicClient, discoveryClient, "")
 	if err := verifier.HasSupport(gvk); err != nil {
 		return errors.Wrap(err, "verifier check gvk")
 	}

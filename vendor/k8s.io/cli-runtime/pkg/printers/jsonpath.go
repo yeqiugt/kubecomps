@@ -24,7 +24,6 @@ import (
 	"reflect"
 
 	"k8s.io/apimachinery/pkg/runtime"
-	"k8s.io/cli-runtime/pkg/genericclioptions/openshiftpatch"
 	"k8s.io/client-go/util/jsonpath"
 )
 
@@ -86,7 +85,7 @@ func exists(item interface{}, indices ...interface{}) bool {
 // We indirect through pointers and empty interfaces (only) because
 // non-empty interfaces have methods we might need.
 func indirect(v reflect.Value) (rv reflect.Value, isNil bool) {
-	for ; v.Kind() == reflect.Ptr || v.Kind() == reflect.Interface; v = v.Elem() {
+	for ; v.Kind() == reflect.Pointer || v.Kind() == reflect.Interface; v = v.Elem() {
 		if v.IsNil() {
 			return v, true
 		}
@@ -121,9 +120,6 @@ func (j *JSONPathPrinter) PrintObj(obj runtime.Object, w io.Writer) error {
 	// using reflect.Indirect indiscriminately is valid here, as all runtime.Objects are supposed to be pointers.
 	if InternalObjectPreventer.IsForbidden(reflect.Indirect(reflect.ValueOf(obj)).Type().PkgPath()) {
 		return fmt.Errorf(InternalObjectPrinterErr)
-	}
-	if openshiftpatch.IsOAPI(obj.GetObjectKind().GroupVersionKind()) {
-		return fmt.Errorf("attempt to print an ungroupified object: %v", obj.GetObjectKind().GroupVersionKind())
 	}
 
 	var queryObj interface{} = obj

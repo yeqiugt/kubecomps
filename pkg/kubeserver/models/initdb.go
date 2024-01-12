@@ -10,6 +10,7 @@ func InitDB() error {
 	for _, manager := range []db.IModelManager{
 		RepoManager,
 		ClusterManager,
+		KsClusterManager,
 	} {
 		err := manager.InitializeData()
 		if err != nil {

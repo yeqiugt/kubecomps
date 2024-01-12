@@ -43,6 +43,9 @@ func InitHandlers(app *appsrv.Application) {
 		models.MachineManager,
 		models.GetContainerRegistryManager(),
 
+		// liulijin
+		models.KsClusterManager,
+
 		// k8s cluster resource manager
 		models.GetNodeManager(),
 		models.GetNamespaceManager(),
@@ -76,8 +79,7 @@ func InitHandlers(app *appsrv.Application) {
 		models.GetFedClusterRoleManager(),
 		models.GetFedClusterRoleBindingManager(),
 		models.GetFedRoleManager(),
-		models.GetFedRoleBindingManager(),
-	} {
+		models.GetFedRoleBindingManager()} {
 		db.RegisterModelManager(man)
 		handler := db.NewModelHandler(man)
 		dispatcher.AddModelDispatcher(apiPrefix, app, handler)

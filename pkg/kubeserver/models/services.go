@@ -58,7 +58,7 @@ type SService struct {
 
 func (m *SServiceManager) ValidateService(svc *v1.Service) error {
 	return ValidateCreateK8sObject(svc, new(core.Service), func(out interface{}) field.ErrorList {
-		return validation.ValidateService(out.(*core.Service), true)
+		return validation.ValidateService(out.(*core.Service))
 		// return validation.ValidateObjectMeta(&svc.ObjectMeta, true, validation.ValidateServiceName, field.NewPath("metadata"))
 	})
 }

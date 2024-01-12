@@ -2,6 +2,7 @@ package models
 
 import (
 	"context"
+	apivalidation "k8s.io/kubernetes/pkg/apis/core/validation"
 
 	apps "k8s.io/api/apps/v1"
 	v1 "k8s.io/api/core/v1"
@@ -62,7 +63,7 @@ type SStatefulSet struct {
 
 func (m *SStatefulSetManager) ValidateStatefulSetObject(deploy *apps.StatefulSet) error {
 	return ValidateCreateK8sObject(deploy, new(iapps.StatefulSet), func(out interface{}) field.ErrorList {
-		return validation.ValidateStatefulSet(out.(*iapps.StatefulSet))
+		return validation.ValidateStatefulSet(out.(*iapps.StatefulSet), apivalidation.PodValidationOptions{})
 	})
 }
 

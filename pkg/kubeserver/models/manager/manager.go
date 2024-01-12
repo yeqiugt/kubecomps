@@ -43,6 +43,15 @@ type IClusterManager interface {
 	GetRunningClusters() ([]ICluster, error)
 }
 
+type IKsClusterManager interface {
+	// IsClusterExists(userCred mcclient.TokenCredential, id string) (ICluster, bool, error)
+	//FetchClusterByIdOrName(userCred mcclient.TokenCredential, id string) (ICluster, error)
+	//CreateCluster(ctx context.Context, userCred mcclient.TokenCredential, data api.ClusterCreateInput) (ICluster, error)
+	////GetNonSystemClusters() ([]ICluster, error)
+	//GetRunningClusters() ([]ICluster, error)
+	GetHelloWorld() string
+}
+
 type IMachine interface {
 	GetId() string
 	GetName() string
@@ -69,8 +78,9 @@ type IMachineManager interface {
 }
 
 var (
-	clusterManager IClusterManager
-	machineManager IMachineManager
+	clusterManager   IClusterManager
+	machineManager   IMachineManager
+	ksClusterManager IKsClusterManager
 )
 
 func RegisterClusterManager(man IClusterManager) {
@@ -78,6 +88,13 @@ func RegisterClusterManager(man IClusterManager) {
 		log.Fatalf("ClusterManager already registered")
 	}
 	clusterManager = man
+}
+
+func RegisterKsClusterManager(man IKsClusterManager) {
+	if ksClusterManager != nil {
+		log.Fatalf("ksClusterManager already registered")
+	}
+	ksClusterManager = man
 }
 
 func RegisterMachineManager(man IMachineManager) {

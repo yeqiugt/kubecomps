@@ -121,7 +121,7 @@ func (obj *SFedClusterRole) PerformDetachCluster(ctx context.Context, userCred m
 
 func ValidateUpdateFedClusterRoleObject(oldObj, newObj *rbacv1.ClusterRole) error {
 	if err := ValidateUpdateK8sObject(oldObj, newObj, new(rbac.ClusterRole), new(rbac.ClusterRole), func(newObj, oldObj interface{}) field.ErrorList {
-		return validation.ValidateClusterRole(newObj.(*rbac.ClusterRole))
+		return validation.ValidateClusterRole(newObj.(*rbac.ClusterRole), validation.ClusterRoleValidationOptions{})
 	}); err != nil {
 		return errors.Wrap(err, "ValidateUpdateFedClusterRoleObject")
 	}

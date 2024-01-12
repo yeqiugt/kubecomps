@@ -6,6 +6,8 @@ import (
 	apps "k8s.io/api/apps/v1"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	apivalidation "k8s.io/kubernetes/pkg/apis/core/validation"
+
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/util/validation/field"
 	iapps "k8s.io/kubernetes/pkg/apis/apps"
@@ -61,7 +63,7 @@ type SDaemonSet struct {
 
 func (m *SDaemonSetManager) ValidateDaemonSetObject(ds *apps.DaemonSet) error {
 	return ValidateCreateK8sObject(ds, new(iapps.DaemonSet), func(out interface{}) field.ErrorList {
-		return validation.ValidateDaemonSet(out.(*iapps.DaemonSet))
+		return validation.ValidateDaemonSet(out.(*iapps.DaemonSet), apivalidation.PodValidationOptions{})
 	})
 }
 

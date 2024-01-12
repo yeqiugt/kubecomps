@@ -17,6 +17,7 @@ const (
 	ClusterTypeDefault ClusterType = "default"
 	// nodeless k8s cluster
 	// ClusterTypeServerless ClusterType = "serverless"
+	ClusterTypeKS ClusterType = "ks-cluster"
 )
 
 type ModeType string
